@@ -7,14 +7,13 @@ Created on Sat Apr 11 18:57 2020
 
 import pandas as pd
 import os
+import datetime
+import numpy as np
 import datafeeddashboard.utils.PriveSQL as pql
 from datafeeddashboard.utils import FeedSettings as fs
 
-def lastAccounUpdateImpl():
-    '''
-    :return: pandas dataframe from MySQL query
-    '''
-    print('=======Staring LastAccountUpdate.py=======')
+def outstandingParsingErrorsImpl():
+    print('=======Staring OutstandingParsingErrors.py=======')
     sqlConn = pql.mySqlDatabase()
     fsobj = fs.FeedSettings()
 
@@ -24,24 +23,9 @@ def lastAccounUpdateImpl():
         lastInvestorAccountInfo = sqlConn.executeQuery(pql.generatePositionQueries \
                                                        .getLastInvestorAccountInformation(feedSource=feedValue['Constant']))
         print('For feed `{0}`, {1} rows retrieved'.format(feedKey, str(lastInvestorAccountInfo.shape[0])))
-        lastInvestorAccountInfo = lastInvestorAccountInfo[lastInvestorAccountInfo['DATEDIFF'] <= -7]
+        lastInvestorAccountInfo['BUSDAYDIFF'] = np.busday_count(datetime.datetime.now() -
+                                                datetime.datetime.strptime(lastInvestorAccountInfo['VALUEDATE'], '%Y-%m-%d %H:%M:%S.%f'))
+        lastInvestorAccountInfo = lastInvestorAccountInfo[lastInvestorAccountInfo['BUSDAYDIFF'] <= -4]
         lastInvestorAccountInfo['SOURCENAME'] = feedKey
         yield lastInvestorAccountInfo
-    print('=======Completed LastAccountUpdate.py run=======')
-
-def execute():
-    '''
-    :return: Executes implementation and returns list of values for the body for a single API call
-    '''
-    responseList = list()
-    for eachdf in lastAccounUpdateImpl():
-        if len(responseList) == 0:
-            colnames = eachdf.columns.to_list()
-            responseList.append(colnames)
-        responseList.extend(eachdf.values.tolist())
-    outputList = responseList
-    return outputList
-
-if __name__ == "__main__":
-    execute()
-
+    print('=======Completed OutstandingParsingErrors.py run=======')

@@ -16,7 +16,9 @@ class FeedSettings:
                       'ubs': {'Constant': 1300, 'Type': 'EAM', 'maxDepth': 3},
                       'dbs': {'Constant': 1100, 'Type': 'EAM', 'maxDepth': 3},
                       'phillipsecurities': {'Constant': 1600, 'Type': 'EAM', 'maxDepth': 3},
-                      'generalithailand': {'Constant': 1800, 'Type': 'ENT', 'comKey': '6471', 'maxDepth': 3}
+                      'generalithailand': {'Constant': 1800, 'Type': 'ENT', 'comKey': '6471', 'maxDepth': 3},
+                      'ifast': {'Constant': 400, 'Type': 'EAM', 'comKey': '7021', 'maxDepth': 3},
+                      'baaderbank': {'Constant': 800, 'Type': 'EAM', 'maxDepth': 3}
                       }
 
     def getSpecificFeedValues(self, feed):

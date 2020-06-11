@@ -8,7 +8,7 @@ Requires:
 `credentials.json` from the GSuite API
 `envvars.json` containing MySQL and AWS credentials and variables
 """
-import datafeeddashboard.quickstart as qs
+import datafeeddashboard.GenericDashboardService as qs
 import json
 import os
 
@@ -20,7 +20,7 @@ with open("envvars.json") as envVarFile:
 def main():
     gsheet = qs.gSheetServiceConnection()
     qs.updateLastFileReceipt(gsheet)
-    #qs.updateLastAccountUpdate(gsheet)
+    qs.updateLastAccountUpdate(gsheet)
 
 if __name__ == "__main__":
     main()

@@ -160,3 +160,8 @@ class generateStaticDataQueries:
                 WHERE AC.ACTIVE = '1' AND AC.DEMO <> '1';"
 
         return query
+
+class generateErrorQueries:
+
+    def getReportParsingErrors(greaterthandate):
+        query = ""
