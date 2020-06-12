@@ -13,5 +13,9 @@ SheetSettingsDict = {
     'LastAccountUpdate': {
         'SPREADSHEET_ID': '1OYfQugzua5npIsfwG05iHW7icyfUqsQdSDABymD5WYo',
         'SPREADSHEET_TAB_NAME': 'pyLastAccountUpdate'
+    },
+    'ReconciliationBreaks': {
+        'SPREADSHEET_ID': '1OYfQugzua5npIsfwG05iHW7icyfUqsQdSDABymD5WYo',
+        'SPREADSHEET_TAB_NAME': 'pyDatafeedReconBreak'
     }
 }

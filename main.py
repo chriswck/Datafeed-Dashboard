@@ -14,13 +14,14 @@ import os
 
 # Load other necessary S3 and DB credentials/variables into os module
 with open("envvars.json") as envVarFile:
-    envVars = json.load(envVarFile)
+    envVars = json.load(envVarFile)updat
     os.environ.update(envVars)
 
 def main():
     gsheet = qs.gSheetServiceConnection()
     qs.updateLastFileReceipt(gsheet)
     qs.updateLastAccountUpdate(gsheet)
+    qs.updateReconciliationBreaks(gsheet)
 
 if __name__ == "__main__":
     main()

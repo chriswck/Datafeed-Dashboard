@@ -27,6 +27,7 @@ import pandas as pd
 # Custom libraries
 import datafeeddashboard.monitors.LastFileReceipt as lfr
 import datafeeddashboard.monitors.LastAccountUpdate as lau
+import datafeeddashboard.monitors.ReconciliationBreaks as rbk
 import datafeeddashboard.utils.SheetSettings as ss
 
 # If modifying these scopes, delete the file token.pickle.
@@ -111,6 +112,34 @@ def updateLastAccountUpdate(gsheet):
         body={'values': outputList}).execute()
     print('{0} cells updated.'.format(putResponse.get('updatedCells')))
     return putResponse
+
+def updateReconciliationBreaks(gsheet):
+    '''
+    :param gsheet: googleapiclient.discovery.build Google API Service
+    :return: Response from put request to Google API Service
+    '''
+    outputList = rbk.execute()
+    print(pd.DataFrame(data=outputList[1:], columns=outputList[0]))
+
+    # Clear Sheet of all values
+    clearResponse = gsheet.values().clear(
+        spreadsheetId=ss.SheetSettingsDict['ReconciliationBreaks']['SPREADSHEET_ID'],
+        range='{0}!B:Z'.format(ss.SheetSettingsDict['ReconciliationBreaks']['SPREADSHEET_TAB_NAME']),
+        body={}).execute()
+    print(clearResponse)
+
+    # Put values to Sheet
+    putResponse = gsheet.values().update(
+        spreadsheetId=ss.SheetSettingsDict['ReconciliationBreaks']['SPREADSHEET_ID'],
+        #The following range assumes identical number of elements per row. This will break eventually
+        range='{0}!B1:{1}{2}'.format(ss.SheetSettingsDict['ReconciliationBreaks']['SPREADSHEET_TAB_NAME'],
+                                     chr(max(2, 64 + len(outputList[0]) + 2)),  # Get length of column names
+                                     str(len(outputList))),
+        valueInputOption='RAW',
+        body={'values': outputList}).execute()
+    print('{0} cells updated.'.format(putResponse.get('updatedCells')))
+    return putResponse
+
 
 if __name__ == '__main__':
     gsheet = gSheetServiceConnection()

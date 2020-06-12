@@ -55,6 +55,29 @@ class generatePositionQueries:
 
         return query
 
+    def getPortfolioMetrics(feedSource = None, advComKey=None, execPlatObjKey=None):
+        query = "SELECT IA.KEY AS `ACCKEY`, IA.BROKERACCNTID, IA.NAME, EPO.KEY AS `EPOKEY`, IA.STATUS, \
+                U.COMPANY_ADVISORCOMPANY_KEY_EID AS `COMPANYKEY`, AC.NAME AS `COMPANYNAME`, IAF.SOURCE, \
+                MAX(PM.RECONERRORDATAFEED) AS `RECONERRORDATAFEED`, IAF.VALUEDATE FROM PORTFOLIOMETRICS PM \
+                JOIN INVESTORACCOUNTINFORMATION IAF ON IAF.KEY = PM.LASTINVESTORACCOUNTINFORMATION_KEY_OID \
+                JOIN INVESTORACCOUNT IA ON IA.KEY = PM.INVESTORACCOUNT_KEY_OID \
+                JOIN USER U ON U.KEY = IA.OWNEDBYUSER_KEY_OID \
+                JOIN ADVISORCOMPANY AC ON AC.KEY = U.COMPANY_ADVISORCOMPANY_KEY_EID \
+                JOIN EXECUTIONPLATFORMOBJECT EPO ON EPO.KEY = IA.EXECUTIONPLATFORMOBJECT_KEY_OID \
+                WHERE \
+                IA.DELETED <> '1' AND U.DELETED <> '1' AND `RECONERRORDATAFEED` = 1 \
+                AND IA.STATUS NOT IN ('4') AND AC.ACTIVE = '1' AND AC.DEMO <> '1' AND IA.BROKERACCNTID NOT LIKE 'TBA%'"
+        if execPlatObjKey:
+            query += " AND IA.EXECUTIONPLATFORMOBJECT_KEY_OID = '" + str(execPlatObjKey) + "'"
+        if advComKey:
+            query += " AND U.COMPANY_ADVISORCOMPANY_KEY_EID = '" + str(advComKey) + "'"
+        if feedSource:
+            query += " AND IAF.SOURCE = '" + str(feedSource) + "'"
+
+        query += "GROUP BY IA.KEY ORDER BY IAF.SOURCE, EPO.KEY, AC.KEY, IAF.VALUEDATE DESC"
+
+        return query
+
 class generateTransactionQueries:
 
     def __init__(self, execStartDateTime, execEndDateTime):
