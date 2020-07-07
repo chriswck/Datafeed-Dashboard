@@ -43,7 +43,7 @@ class generatePositionQueries:
                 JOIN ADVISORCOMPANY AC ON AC.KEY = U.COMPANY_ADVISORCOMPANY_KEY_EID \
                 WHERE \
                 PM.INPUTTIMESERIESTYPE = '1' AND PM.TYPE = '1' AND IA.DELETED <> '1' AND U.DELETED <> '1' \
-                AND IA.STATUS NOT IN ('4') AND AC.ACTIVE = '1' AND AC.DEMO <> '1' AND IA.BROKERACCNTID NOT LIKE 'TBA%'"
+                AND IA.STATUS NOT IN ('4','9') AND AC.ACTIVE = '1' AND AC.DEMO <> '1' AND IA.BROKERACCNTID NOT LIKE 'TBA%'"
         if execPlatObjKey:
             query += " AND IA.EXECUTIONPLATFORMOBJECT_KEY_OID = '" + str(execPlatObjKey) + "'"
         if advComKey:
@@ -66,7 +66,7 @@ class generatePositionQueries:
                 JOIN EXECUTIONPLATFORMOBJECT EPO ON EPO.KEY = IA.EXECUTIONPLATFORMOBJECT_KEY_OID \
                 WHERE \
                 IA.DELETED <> '1' AND U.DELETED <> '1' AND `RECONERRORDATAFEED` = 1 \
-                AND IA.STATUS NOT IN ('4') AND AC.ACTIVE = '1' AND AC.DEMO <> '1' AND IA.BROKERACCNTID NOT LIKE 'TBA%'"
+                AND IA.STATUS NOT IN ('4','9') AND AC.ACTIVE = '1' AND AC.DEMO <> '1' AND IA.BROKERACCNTID NOT LIKE 'TBA%'"
         if execPlatObjKey:
             query += " AND IA.EXECUTIONPLATFORMOBJECT_KEY_OID = '" + str(execPlatObjKey) + "'"
         if advComKey:
