@@ -8,12 +8,11 @@ Created on Thu Nov 14 14:11:20 2019
 import pandas as pd
 import datetime
 import boto3
-import datedelta
 import os
 import datafeeddashboard.utils.PriveSQL as pql
 import datafeeddashboard.utils.FeedSettings as fs
 
-def lastFileRecipetImpl():
+def lastFileReceiptImpl():
     '''
     :return: List of elements showing last File Receipt Details
     '''
@@ -74,7 +73,7 @@ def execute():
     responseList = list()
     colnames = ['S3 Feed Bucket', 'Company Key', 'Company Name', 'LastestFolder', 'UpdateTimeStamp']
 
-    for each in lastFileRecipetImpl():
+    for each in lastFileReceiptImpl():
         print(each)
         each = each + ['null'] * (len(colnames) - len(each))
         responseList.append(each)

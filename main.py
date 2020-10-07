@@ -11,17 +11,29 @@ Requires:
 import datafeeddashboard.GenericDashboardService as qs
 import json
 import os
+import sys
 
 # Load other necessary S3 and DB credentials/variables into os module
 with open("envvars.json") as envVarFile:
     envVars = json.load(envVarFile)
     os.environ.update(envVars)
 
-def main():
+def main(cli_args):
     gsheet = qs.gSheetServiceConnection()
-    qs.updateLastFileReceipt(gsheet)
-    qs.updateLastAccountUpdate(gsheet)
-    qs.updateReconciliationBreaks(gsheet)
+    dispatch_map = {'LastFileReceipt': qs.updateLastFileReceipt,
+                    'LastAccountUpdate': qs.updateLastAccountUpdate,
+                    'ReconciliationBreaks': qs.updateReconciliationBreaks,
+                    }
+    if len(cli_args) == 0:
+        for k,v in dispatch_map.items():
+            eval("v(gsheet)")
+    else:
+        for arg in cli_args:
+            if dispatch_map.get(arg) is None:
+                raise KeyError('{} invalid. Only accept arguments: {}'.format(arg, list(dispatch_map.keys())))
+            else:
+                eval("dispatch_map[arg](gsheet)")
+
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
