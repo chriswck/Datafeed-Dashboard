@@ -28,10 +28,11 @@ def main(cli_args):
         for k,v in dispatch_map.items():
             eval("v(gsheet)")
     else:
-        for arg in cli_args:
-            if dispatch_map.get(arg) is None:
-                raise KeyError('{} invalid. Only accept arguments: {}'.format(arg, list(dispatch_map.keys())))
-            else:
+        if len(set(cli_args) - set(dispatch_map.keys())) > 0:
+            raise KeyError('{} invalid. Only accept arguments: {}'.format(\
+                list(set(cli_args) - set(dispatch_map.keys())), list(dispatch_map.keys())))
+        else:
+            for arg in cli_args:
                 eval("dispatch_map[arg](gsheet)")
 
 
