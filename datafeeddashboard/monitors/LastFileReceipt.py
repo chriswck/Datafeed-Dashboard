@@ -32,13 +32,12 @@ def lastFileReceiptImpl():
                 response = s3c.list_objects_v2(Bucket=os.environ['AWS_BUCKET_PRIVE_ETL'],
                                                Prefix='/'.join(args) + '/', Delimiter='/')
 
-                if response.get('NextContinuationToken') is not None:
-                    while response.get('NextContinuationToken') is not None:
-                        response = s3c.list_objects_v2(Bucket=os.environ['AWS_BUCKET_PRIVE_ETL'],
-                                                       Prefix='/'.join(args) + '/', Delimiter='/',
-                                                       ContinuationToken=response['NextContinuationToken'])
-                        if response.get('NextContinuationToken') is None:
-                            break
+                while response.get('NextContinuationToken') is not None:
+                    response = s3c.list_objects_v2(Bucket=os.environ['AWS_BUCKET_PRIVE_ETL'],
+                                                   Prefix='/'.join(args) + '/', Delimiter='/',
+                                                   ContinuationToken=response['NextContinuationToken'])
+                    if response.get('NextContinuationToken') is None:
+                        break
 
                 maxPathKeys = response['CommonPrefixes']
                 maxKeys = [maxPathKeys[i]['Prefix'].split('/')[-2] for i in range(len(maxPathKeys))]
