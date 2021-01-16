@@ -11,6 +11,7 @@ import boto3
 import os
 import datafeeddashboard.utils.PriveSQL as pql
 import datafeeddashboard.utils.FeedSettings as fs
+import re
 
 def lastFileReceiptImpl():
     '''
@@ -36,12 +37,10 @@ def lastFileReceiptImpl():
                     response = s3c.list_objects_v2(Bucket=os.environ['AWS_BUCKET_PRIVE_ETL'],
                                                    Prefix='/'.join(args) + '/', Delimiter='/',
                                                    ContinuationToken=response['NextContinuationToken'])
-                    if response.get('NextContinuationToken') is None:
-                        break
 
                 maxPathKeys = response['CommonPrefixes']
                 maxKeys = [maxPathKeys[i]['Prefix'].split('/')[-2] for i in range(len(maxPathKeys))]
-                maxKey = max(maxKeys)
+                maxKey = max(list(filter(lambda x: re.search('^[0-9]*$', str(x)), maxKeys)))
                 args.append(maxKey)
                 # print('About to pass argument to next recursive tree call: ' + str(args))
                 return treeLookup(maxDepth - 1, args)
@@ -51,7 +50,8 @@ def lastFileReceiptImpl():
     for feed in feeds:
         print('====Handling Feed {}===='.format(feed))
 
-        if feed in fsobj.getEAMFeedNames() or feed in fsobj.getIFAFeedNames():
+        # EAM Custodian Feeds
+        if feed in fsobj.getEAMFeedNames():
             maxDepth = fsobj.getAllFeedsDict()[feed]['maxDepth']
             pathKeys = s3c.list_objects_v2(Bucket=os.environ['AWS_BUCKET_PRIVE_ETL'],
                                            Prefix='{}/{}/'.format(feed, 'archive'), Delimiter='/')['CommonPrefixes']
@@ -64,6 +64,30 @@ def lastFileReceiptImpl():
                 yield [feed, comKey, activeCompanies[activeCompanies['KEY']==comKey]['NAME'].iloc[0],
                        ''.join(lookupResult[-maxDepth:]), str(datetime.datetime.now())]
 
+        # IFA Provider Feeds
+        elif feed in fsobj.getIFAFeedNames():
+            maxDepth = fsobj.getAllFeedsDict()[feed]['maxDepth']
+            archiveKeyStr = 'archive' if fsobj.getAllFeedsDict()[feed]['archiveKeyPath'] else ''
+
+            if fsobj.getAllFeedsDict()[feed]['comKeyKeyPath']:
+                # Grab the company keys
+                pathKeys = s3c.list_objects_v2(Bucket=os.environ['AWS_BUCKET_PRIVE_ETL'],
+                                               Prefix='{}/{}/'.format(feed, archiveKeyStr), Delimiter='/')['CommonPrefixes']
+                companyKeys = [pathKeys[i]['Prefix'].split('/')[-2] for i in range(len(pathKeys))]
+                for comKey in companyKeys:
+                    if comKey not in list(activeCompanies['KEY']):
+                        continue
+                    print('Handling Feed {} Company {}'.format(feed, comKey))
+                    lookupResult = treeLookup(maxDepth, [feed, archiveKeyStr, comKey])
+                    yield [feed, comKey, activeCompanies[activeCompanies['KEY']==comKey]['NAME'].iloc[0],
+                           ''.join(lookupResult[-maxDepth:]), str(datetime.datetime.now())]
+            else:
+                print('Handling Feed {} No Company Key Path'.format(feed))
+                lookupResult = treeLookup(maxDepth, [feed, archiveKeyStr, comKey])
+                yield [feed, comKey, activeCompanies[activeCompanies['KEY'] == comKey]['NAME'].iloc[0],
+                       ''.join(lookupResult[-maxDepth:]), str(datetime.datetime.now())]
+
+        # Enterprise Feeds
         elif feed in fsobj.getEnterpriseFeedNames():
             maxDepth = fsobj.getAllFeedsDict()[feed]['maxDepth']
             lookupResult = treeLookup(maxDepth, [feed, 'archive'])

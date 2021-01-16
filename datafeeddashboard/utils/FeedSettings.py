@@ -16,13 +16,27 @@ class FeedSettings:
                       'ubs': {'Constant': 1300, 'Type': 'EAM', 'maxDepth': 3},
                       'dbs': {'Constant': 1100, 'Type': 'EAM', 'maxDepth': 3},
                       'phillipsecurities': {'Constant': 1600, 'Type': 'EAM', 'maxDepth': 3},
-                      'generalithailand': {'Constant': 1800, 'Type': 'ENT', 'comKey': '6471', 'maxDepth': 3},
-                      'ifast': {'Constant': 400, 'Type': 'EAM', 'comKey': '7021', 'maxDepth': 3},
                       'baaderbank': {'Constant': 800, 'Type': 'EAM', 'maxDepth': 3},
-                      'axa_pulsar': {'Constant': 500, 'Type': 'IFA', 'maxDepth': 3},
-                      'skandiaRegular': {'Constant': 22, 'Type': 'IFA', 'maxDepth': 1},
-                      'skandiaBond': {'Constant': 8, 'Type':'IFA', 'maxDepth': 1},
-                      #'friendsprovident': {'Constant': [4,17], 'Type':'IFA', 'maxDepth': 3},
+                      'generalithailand': {'Constant': 1800, 'Type': 'ENT', 'comKey': '6471', 'maxDepth': 3},
+                      #'ifast': {'Constant': 400, 'Type': 'IFA', 'comKey': '7021', 'maxDepth': 3},
+                      'axa_pulsar': {'Constant': 500, 'Type': 'IFA', 'archiveKeyPath': False,
+                                  'comKeyKeyPath': True, 'maxDepth': 3},
+                      'friendsprovident': {'Constant': 4, 'Type': 'IFA', 'archiveKeyPath': False,
+                                           'comKeyKeyPath': False, 'maxDepth': 3}, # Also constants 17?
+                      'generali': {'Constant': 5, 'Type': 'IFA', 'archiveKeyPath': False,
+                                   'comKeyKeyPath': False, 'maxDepth': 3}, # Also constants 19 and 54?
+                      'hansard': {'Constant': 6, 'Type': 'IFA', 'archiveKeyPath': True,
+                                  'comKeyKeyPath': False, 'maxDepth': 3},
+                      'rl360v2': {'Constant': 5, 'Type': 'IFA', 'archiveKeyPath': False,
+                                  'comKeyKeyPath': True, 'maxDepth': 3}, # Also constants 23?
+                      'standardlife': {'Constant': 10, 'Type': 'IFA', 'archiveKeyPath': False,
+                                       'comKeyKeyPath': True, 'maxDepth': 3},
+                      'skandiaRegular': {'Constant': 22, 'Type': 'IFA', 'archiveKeyPath': False,
+                                         'comKeyKeyPath': True, 'maxDepth': 3},
+                      'skandiaBond': {'Constant': 8, 'Type':'IFA', 'archiveKeyPath': False,
+                                      'comKeyKeyPath': True, 'maxDepth': 3},
+                      'zurich': {'Constant': 12, 'Type': 'IFA', 'archiveKeyPath': False,
+                                 'comKeyKeyPath': True, 'maxDepth': 3},
                       }
 
     def getSpecificFeedValues(self, feed):
