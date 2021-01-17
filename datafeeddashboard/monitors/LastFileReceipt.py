@@ -40,7 +40,7 @@ def lastFileReceiptImpl():
 
                 maxPathKeys = response['CommonPrefixes']
                 maxKeys = [maxPathKeys[i]['Prefix'].split('/')[-2] for i in range(len(maxPathKeys))]
-                maxKey = max(list(filter(lambda x: re.search('^[0-9]*$', str(x)), maxKeys)))
+                maxKey = max(sorted(list(filter(lambda x: re.search('^[0-9\-]+$', str(x)), maxKeys))))
                 args.append(maxKey)
                 # print('About to pass argument to next recursive tree call: ' + str(args))
                 return treeLookup(maxDepth - 1, args)
@@ -67,24 +67,49 @@ def lastFileReceiptImpl():
         # IFA Provider Feeds
         elif feed in fsobj.getIFAFeedNames():
             maxDepth = fsobj.getAllFeedsDict()[feed]['maxDepth']
-            archiveKeyStr = 'archive' if fsobj.getAllFeedsDict()[feed]['archiveKeyPath'] else ''
 
-            if fsobj.getAllFeedsDict()[feed]['comKeyKeyPath']:
+            # archive True and comKey True
+            if fsobj.getAllFeedsDict()[feed]['archiveKeyPath'] and fsobj.getAllFeedsDict()[feed]['comKeyKeyPath']:
                 # Grab the company keys
                 pathKeys = s3c.list_objects_v2(Bucket=os.environ['AWS_BUCKET_PRIVE_ETL'],
-                                               Prefix='{}/{}/'.format(feed, archiveKeyStr), Delimiter='/')['CommonPrefixes']
-                companyKeys = [pathKeys[i]['Prefix'].split('/')[-2] for i in range(len(pathKeys))]
+                                               Prefix='{}/{}/'.format(feed, 'archive'), Delimiter='/')['CommonPrefixes']
+                companyKeysDirty = [pathKeys[i]['Prefix'].split('/')[-2] for i in range(len(pathKeys))]
+                companyKeys = list(filter(lambda x: re.search('^[0-9]+$', x), companyKeysDirty))
                 for comKey in companyKeys:
                     if comKey not in list(activeCompanies['KEY']):
                         continue
                     print('Handling Feed {} Company {}'.format(feed, comKey))
-                    lookupResult = treeLookup(maxDepth, [feed, archiveKeyStr, comKey])
+                    lookupResult = treeLookup(maxDepth, [feed, 'archive', comKey])
                     yield [feed, comKey, activeCompanies[activeCompanies['KEY']==comKey]['NAME'].iloc[0],
                            ''.join(lookupResult[-maxDepth:]), str(datetime.datetime.now())]
+
+            # archive True and comKey False
+            elif fsobj.getAllFeedsDict()[feed]['archiveKeyPath'] and fsobj.getAllFeedsDict()[feed]['comKeyKeyPath'] is False:
+                print('Handling Feed {} No Company Key Path'.format(feed))
+                lookupResult = treeLookup(maxDepth, [feed, 'archive'])
+                yield [feed, 'noComKey', 'noComName',
+                       ''.join(lookupResult[-maxDepth:]), str(datetime.datetime.now())]
+
+            # archive False and comKey True
+            elif fsobj.getAllFeedsDict()[feed]['archiveKeyPath'] is False and fsobj.getAllFeedsDict()[feed]['comKeyKeyPath']:
+                # Grab the company keys
+                pathKeys = s3c.list_objects_v2(Bucket=os.environ['AWS_BUCKET_PRIVE_ETL'],
+                                               Prefix='{}/'.format(feed), Delimiter='/')['CommonPrefixes']
+                companyKeysDirty = [pathKeys[i]['Prefix'].split('/')[-2] for i in range(len(pathKeys))]
+                companyKeys = list(filter(lambda x: re.search('^[0-9]+$', x), companyKeysDirty))
+                for comKey in companyKeys:
+                    if comKey not in list(activeCompanies['KEY']):
+                        continue
+                    print('Handling Feed {} Company {}'.format(feed, comKey))
+                    lookupResult = treeLookup(maxDepth, [feed, comKey])
+                    yield [feed, comKey, activeCompanies[activeCompanies['KEY']==comKey]['NAME'].iloc[0],
+                           ''.join(lookupResult[-maxDepth:]), str(datetime.datetime.now())]
+
+            # archive False and comKey False
             else:
                 print('Handling Feed {} No Company Key Path'.format(feed))
-                lookupResult = treeLookup(maxDepth, [feed, archiveKeyStr, comKey])
-                yield [feed, comKey, activeCompanies[activeCompanies['KEY'] == comKey]['NAME'].iloc[0],
+                lookupResult = treeLookup(maxDepth, [feed])
+                yield [feed, 'noComKey', 'noComName',
                        ''.join(lookupResult[-maxDepth:]), str(datetime.datetime.now())]
 
         # Enterprise Feeds
