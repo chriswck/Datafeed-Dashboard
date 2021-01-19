@@ -19,6 +19,8 @@ class FeedSettings:
                       'baaderbank': {'Constant': 800, 'Type': 'EAM', 'maxDepth': 3},
                       'generalithailand': {'Constant': 1800, 'Type': 'ENT', 'comKey': '6471', 'maxDepth': 3},
                       #'ifast': {'Constant': 400, 'Type': 'IFA', 'comKey': '7021', 'maxDepth': 3},
+                      'ageas': {'Constant': 14, 'Type': 'IFA', 'archiveKeyPath': False,
+                                'comKeyKeyPath': True, 'maxDepth': 3},
                       'axa_pulsar': {'Constant': 500, 'Type': 'IFA', 'archiveKeyPath': False,
                                   'comKeyKeyPath': True, 'maxDepth': 3},
                       'friendsprovident': {'Constant': 4, 'Type': 'IFA', 'archiveKeyPath': False,
