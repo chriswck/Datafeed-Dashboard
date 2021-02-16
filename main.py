@@ -24,10 +24,8 @@ app = typer.Typer()
 
 @app.command()
 def updateDashboard(sheet: str = typer.Argument(None,
-                                                help='Acceptable values: \
-                                                LastFileReceipt, \
-                                                LastAccountUpdate, \
-                                                ReconcilliationBreaks.')):
+                                                help='[LastFileReceipt|LastAccountUpdate|ReconcilliationBreaks]\
+                                                     Optional. If none provided, all will be updated.')):
     gsheet = qs.gSheetServiceConnection()
     dispatch_map = {'LastFileReceipt': qs.updateLastFileReceipt,
                     'LastAccountUpdate': qs.updateLastAccountUpdate,
