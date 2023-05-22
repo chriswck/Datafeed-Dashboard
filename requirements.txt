@@ -6,7 +6,7 @@ mysql.connector==2.2.9
 mysql-connector-python==8.0.19
 numpy==1.22.0
 pandas==1.0.1
-requests==2.23.0
+requests==2.31.0
 s3path==0.1.091
 s3fs==0.4.0
 
